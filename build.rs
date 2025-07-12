@@ -6,10 +6,11 @@ fn main() -> std::io::Result<()> {
     let out_path = Path::new(&out_dir).join("fib.rs");
     let mut file = File::create(out_path)?;
 
-    file.write_all(b"pub fn fib(n: u64) -> Result<u64, crate::OutOfBoundsError> {
-    match n {
-        0 => Ok(0),
-        1 => Ok(1),")?;
+    file.write_all(b"impl Fib<u64> for u64{
+    fn fib(n: u64) -> Result<u64, crate::OutOfBoundsError> {
+        match n {
+            0 => Ok(0),
+            1 => Ok(1),\n")?;
 
     let mut a = 0u64;
     let mut b = 1;
@@ -23,12 +24,12 @@ fn main() -> std::io::Result<()> {
         i += 1;
     }
 
-    file.write_all(b"
-        _ => Err(crate::OutOfBoundsError::from(n)),
+    file.write_all(b"\t\t_ => Err(crate::OutOfBoundsError::from(n)),
+        }
     }
 }")?;
 
     println!("cargo::rerun-if-changed=build.rs");
-    
+
     Ok(())
 }
