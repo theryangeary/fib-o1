@@ -17,5 +17,11 @@ fn test_fib() {
     assert_eq!(fib(30).unwrap(), 832040);
     assert_eq!(fib(40).unwrap(), 102334155);
     assert_eq!(fib(93).unwrap(), 12200160415121876738);
+
+}
+
+#[test]
+fn test_fib_err() {
+    #[cfg(not(feature = "big-int"))]
     assert!(fib(94).is_err());
 }
