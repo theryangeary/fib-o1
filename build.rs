@@ -1,7 +1,10 @@
-use std::{fs::File, io::Write};
+use std::{env, fs::File, io::Write, path::Path};
+
 
 fn main() -> std::io::Result<()> {
-    let mut file = File::create("src/fib.rs")?;
+    let out_dir = env::var_os("OUT_DIR").unwrap();
+    let out_path = Path::new(&out_dir).join("fib.rs");
+    let mut file = File::create(out_path)?;
 
     file.write_all(b"pub fn fib(n: u64) -> Result<u64, crate::OutOfBoundsError> {
     match n {
@@ -25,5 +28,7 @@ fn main() -> std::io::Result<()> {
     }
 }")?;
 
+    println!("cargo::rerun-if-changed=build.rs");
+    
     Ok(())
 }
