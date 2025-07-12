@@ -1,6 +1,7 @@
 pub fn fib(n: u64) -> u64 {
-    if n < 2 {
-        return n;
+    match n {
+        0 => 0,
+        1 => 1,
+        _ => fib(n-1) + fib(n-2),
     }
-    return fib(n-1) + fib(n-2);
 }
