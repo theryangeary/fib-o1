@@ -8,6 +8,6 @@ include!(concat!(env!("OUT_DIR"), "/fib.rs"));
 
 pub use error::OutOfBoundsError;
 
-pub trait Fib<T> {
-    fn fib(t: u64) -> Result<T, crate::OutOfBoundsError<u64>>;
+pub trait Fib<I, O> {
+    fn fib(t: I) -> Result<O, crate::OutOfBoundsError<I>>;
 }

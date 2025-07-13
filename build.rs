@@ -16,7 +16,7 @@ fn main() -> std::io::Result<()> {
     #[cfg(feature = "bigint")]
     file.write_all(b"use num_bigint::{BigInt,ToBigInt};\n")?;
 
-    implement_fib_for_type::<u64>(&mut file, "u64", 100)?;
+    implement_fib_for_type::<u64>(&mut file, "u64", "u64", 100)?;
 
     #[cfg(feature = "bigint")]
     implement_fib_for_type::<BigInt>(&mut file, "BigInt", 100)?;
@@ -26,32 +26,32 @@ fn main() -> std::io::Result<()> {
     Ok(())
 }
 
-fn implement_fib_for_type<T>(file: &mut File, ty: &str, limit: u64) -> Result<(), std::io::Error>
+fn implement_fib_for_type<InputT>(file: &mut File, input_ty: &str, output_ty: &str, limit: u64) -> Result<(), std::io::Error>
 where
-    T: From<u64>
+    InputT: From<u64>
         + num::CheckedAdd
         + Display
-        + std::ops::AddAssign<T>
+        + std::ops::AddAssign<InputT>
         + Clone
         + std::cmp::PartialOrd,
 {
-    let result0 = get_result_ok_internal(&0u64,& 0u64, ty);
-    let result1 = get_result_ok_internal(&0u64, &1u64, ty);
+    let result0 = get_result_ok_internal(&0u64,& 0u64, output_ty);
+    let result1 = get_result_ok_internal(&0u64, &1u64, output_ty);
     file.write_all(
         format!(
-            "impl Fib<{ty}> for {ty} {{
-    fn fib(n: u64) -> Result<{ty}, crate::OutOfBoundsError<u64>> {{
+            "impl Fib<{input_ty}, {output_ty}> for {output_ty} {{
+    fn fib(n: {input_ty}) -> Result<{output_ty}, crate::OutOfBoundsError<u64>> {{
         match n {{
             0 => Ok({result0}),
             1 => Ok({result1}),\n"
         )
         .as_bytes(),
     )?;
-    let mut a = T::from(0);
-    let mut b = T::from(1);
+    let mut a = InputT::from(0);
+    let mut b = InputT::from(1);
     let mut i = 2u64;
     while i < limit && a.checked_add(&b).is_some() {
-        let result = get_result_ok_internal(&a, &b, ty);
+        let result = get_result_ok_internal(&a, &b, output_ty);
         file.write_all(format!("\t\t{i} => Ok({result}),\n",).as_bytes())?;
         let c = b.clone();
         b = a + b;
@@ -67,12 +67,11 @@ where
     Ok(())
 }
 
-fn get_result_ok_internal<T>(a: &T, b: &T, ty: &str) -> String
+fn get_result_ok_internal<I>(a: &I, b: &I, ty: &str) -> String
 where
-    T: From<u64>
-        + num::CheckedAdd
+    I: num::CheckedAdd
         + Display
-        + std::ops::AddAssign<T>
+        + std::ops::AddAssign<I>
         + Clone
         + std::cmp::PartialOrd,
 {
