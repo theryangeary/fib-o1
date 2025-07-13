@@ -1,10 +1,14 @@
 use num::bigint::BigInt;
 use std::{fmt::Display, fs::File, io::Write, path::Path};
 
-
 macro_rules! impl_fib {
-    ($file:ident, $input_ty:ty, $output_ty:ty, $limit:literal) => {
-        implement_fib_for_type::<$input_ty, $output_ty>(&mut $file, stringify!($input_ty), stringify!($output_ty), $limit)?;
+    ($file:ident, $input_ty:ty, $output_ty:ty) => {
+        implement_fib_for_type::<$input_ty, $output_ty>(&mut $file, stringify!($input_ty), stringify!($output_ty), <$input_ty>::MAX)?;
+    };
+    ( $file:ident, $($input_ty:ty),+ => $output_ty:ty) => {
+        $(
+            impl_fib!($file, $input_ty, $output_ty);
+        )+
     };
 }
 
@@ -21,13 +25,13 @@ fn main() -> std::io::Result<()> {
 
     #[cfg(feature = "bigint")]
     file.write_all(b"use num_bigint::{BigInt,ToBigInt};\n")?;
-    
-    impl_fib!(file, u8, u64, 100);
-    impl_fib!(file, u16, u64, 100);
-    impl_fib!(file, u32, u64, 100);
-    impl_fib!(file, u64, u64, 100);
-    impl_fib!(file, u128, u64, 100);
-    impl_fib!(file, usize, u64, 100);
+
+    impl_fib!(file, u8, u16, u32, u64, u128, usize => u8);
+    impl_fib!(file, u8, u16, u32, u64, u128, usize => u16);
+    impl_fib!(file, u8, u16, u32, u64, u128, usize => u32);
+    impl_fib!(file, u8, u16, u32, u64, u128, usize => u64);
+    impl_fib!(file, u8, u16, u32, u64, u128, usize => u128);
+    impl_fib!(file, u8, u16, u32, u64, u128, usize => usize);
 
     #[cfg(feature = "bigint")]
     implement_fib_for_type::<u64, BigInt>(&mut file, "u64", "BigInt", 100)?;
@@ -36,7 +40,6 @@ fn main() -> std::io::Result<()> {
 
     Ok(())
 }
-
 
 fn implement_fib_for_type<I, O>(
     file: &mut File,
