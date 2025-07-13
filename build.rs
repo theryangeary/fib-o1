@@ -9,33 +9,34 @@ fn main() -> std::io::Result<()> {
     let out_path = Path::new(&out_dir).join("fib.rs");
     let mut file = File::create(out_path)?;
 
-
     #[cfg(feature = "codegen-inplace")]
     file.write_all(b"pub use crate::Fib;\n")?;
 
     #[cfg(feature = "bigint")]
     file.write_all(b"use num_bigint::{BigInt,ToBigInt};\n")?;
 
-    implement_fib_for_type::<u64>(&mut file, "u64", "u64", 100)?;
+    implement_fib_for_type::<u64, u64>(&mut file, "u64", "u64", 100)?;
+    implement_fib_for_type::<u32, u64>(&mut file, "u32", "u64", 100)?;
 
     #[cfg(feature = "bigint")]
-    implement_fib_for_type::<BigInt>(&mut file, "BigInt", 100)?;
+    implement_fib_for_type::<u64, BigInt>(&mut file, "u64", "BigInt", 100)?;
 
     println!("cargo::rerun-if-changed=build.rs");
 
     Ok(())
 }
 
-fn implement_fib_for_type<InputT>(file: &mut File, input_ty: &str, output_ty: &str, limit: u64) -> Result<(), std::io::Error>
+fn implement_fib_for_type<I, O>(
+    file: &mut File,
+    input_ty: &str,
+    output_ty: &str,
+    limit: I,
+) -> Result<(), std::io::Error>
 where
-    InputT: From<u64>
-        + num::CheckedAdd
-        + Display
-        + std::ops::AddAssign<InputT>
-        + Clone
-        + std::cmp::PartialOrd,
+    I: From<u8> + num::CheckedAdd + Display + std::ops::AddAssign<I> + Clone + std::cmp::PartialOrd,
+    O: From<u8> + num::CheckedAdd + Display + std::ops::AddAssign<O> + Clone + std::cmp::PartialOrd,
 {
-    let result0 = get_result_ok_internal(&0u64,& 0u64, output_ty);
+    let result0 = get_result_ok_internal(&0u64, &0u64, output_ty);
     let result1 = get_result_ok_internal(&0u64, &1u64, output_ty);
     file.write_all(
         format!(
@@ -47,19 +48,19 @@ where
         )
         .as_bytes(),
     )?;
-    let mut a = InputT::from(0);
-    let mut b = InputT::from(1);
-    let mut i = 2u64;
+    let mut a = O::from(0);
+    let mut b = O::from(1);
+    let mut i = I::from(2);
     while i < limit && a.checked_add(&b).is_some() {
         let result = get_result_ok_internal(&a, &b, output_ty);
-        file.write_all(format!("\t\t{i} => Ok({result}),\n",).as_bytes())?;
+        file.write_all(format!("\t\t\t{i} => Ok({result}),\n",).as_bytes())?;
         let c = b.clone();
         b = a + b;
         a = c.clone();
-        i += 1;
+        i += I::from(1);
     }
     file.write_all(
-        b"\t\t_ => Err(crate::OutOfBoundsError::from(n)),
+        b"\t\t\t_ => Err(crate::OutOfBoundsError::from(n)),
         }
     }
 }\n\n",
@@ -69,11 +70,7 @@ where
 
 fn get_result_ok_internal<I>(a: &I, b: &I, output_ty: &str) -> String
 where
-    I: num::CheckedAdd
-        + Display
-        + std::ops::AddAssign<I>
-        + Clone
-        + std::cmp::PartialOrd,
+    I: num::CheckedAdd + Display + std::ops::AddAssign<I> + Clone + std::cmp::PartialOrd,
 {
     match output_ty {
         "BigInt" => format!("{}u128.to_bigint().unwrap()", a.clone() + b.clone()),
