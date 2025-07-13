@@ -1,6 +1,13 @@
 use num::bigint::BigInt;
 use std::{fmt::Display, fs::File, io::Write, path::Path};
 
+
+macro_rules! impl_fib {
+    ($file:ident, $input_ty:ty, $output_ty:ty, $limit:literal) => {
+        implement_fib_for_type::<$input_ty, $output_ty>(&mut $file, stringify!($input_ty), stringify!($output_ty), $limit)?;
+    };
+}
+
 fn main() -> std::io::Result<()> {
     #[cfg(feature = "codegen-inplace")]
     let out_dir = "./src";
@@ -14,14 +21,13 @@ fn main() -> std::io::Result<()> {
 
     #[cfg(feature = "bigint")]
     file.write_all(b"use num_bigint::{BigInt,ToBigInt};\n")?;
-
-    implement_fib_for_type::<u8, u64>(&mut file, "u8", "u64", 100)?;
-    implement_fib_for_type::<u16, u64>(&mut file, "u16", "u64", 100)?;
-    implement_fib_for_type::<u32, u64>(&mut file, "u32", "u64", 100)?;
-    implement_fib_for_type::<u64, u64>(&mut file, "u64", "u64", 100)?;
-    implement_fib_for_type::<u128, u64>(&mut file, "u128", "u64", 100)?;
-    implement_fib_for_type::<usize, u64>(&mut file, "usize", "u64", 100)?;
     
+    impl_fib!(file, u8, u64, 100);
+    impl_fib!(file, u16, u64, 100);
+    impl_fib!(file, u32, u64, 100);
+    impl_fib!(file, u64, u64, 100);
+    impl_fib!(file, u128, u64, 100);
+    impl_fib!(file, usize, u64, 100);
 
     #[cfg(feature = "bigint")]
     implement_fib_for_type::<u64, BigInt>(&mut file, "u64", "BigInt", 100)?;
@@ -30,6 +36,7 @@ fn main() -> std::io::Result<()> {
 
     Ok(())
 }
+
 
 fn implement_fib_for_type<I, O>(
     file: &mut File,
