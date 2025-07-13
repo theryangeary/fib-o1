@@ -128,3 +128,19 @@ fn test_fib_biguint() {
         BigUint::fib(255u8).is_ok()
     );
 }
+
+#[cfg(feature = "bigint")]
+#[test]
+fn test_fib_accuracy() {
+    let mut a = BigInt::from(0);
+    let mut b = BigInt::from(1);
+    let mut i = 0u128;
+    while let Ok(actual) = BigInt::fib(i) {
+        assert_eq!(a.clone(), actual);
+        let c = a.clone() + b.clone();
+        a = b;
+        b = c;
+        i += 1;
+    }
+    assert_eq!(i, fib_o1::MAX_INPUT + 1)
+}

@@ -2,6 +2,8 @@ use num::bigint::{BigInt, BigUint};
 use paste::paste;
 use std::{fmt::Debug, fmt::Display, fs::File, io::Write, path::Path};
 
+pub const MAX_INPUT: u128 = 2u128.pow(12);
+
 macro_rules! impl_fib {
     ($file:ident, $input_ty:ty, $output_ty:ty, $limit:expr) => {
         implement_fib_for_type::<$input_ty, $output_ty>(&mut $file, stringify!($input_ty), stringify!($output_ty), $limit)?;
@@ -49,6 +51,8 @@ fn main() -> std::io::Result<()> {
     #[cfg(feature = "bigint")]
     file.write_all(b"use num_bigint::{BigInt,BigUint,ToBigUint,ToBigInt};\n")?;
 
+    file.write_all(format!("pub const MAX_INPUT: u128 = {};", MAX_INPUT).as_bytes())?;
+
     impl_fib!(file, u8, u16, u32, u64, u128, usize => u8);
     impl_fib!(file, u8, u16, u32, u64, u128, usize => u16);
     impl_fib!(file, u8, u16, u32, u64, u128, usize => u32);
@@ -58,7 +62,7 @@ fn main() -> std::io::Result<()> {
 
     #[cfg(feature = "bigint")]
     {
-        let big_int_limit = u16::MAX / 16;
+        let big_int_limit = MAX_INPUT + 1;
         impl_fib!(file, u8, u16, u32, u64, u128, usize => BigInt, big_int_limit.try_into().unwrap());
         impl_fib!(file, u8, u16, u32, u64, u128, usize => BigUint, big_int_limit.try_into().unwrap());
     }
