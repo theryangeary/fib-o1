@@ -40,7 +40,7 @@ where
     file.write_all(
         format!(
             "impl Fib<{input_ty}, {output_ty}> for {output_ty} {{
-    fn fib(n: {input_ty}) -> Result<{output_ty}, crate::OutOfBoundsError<u64>> {{
+    fn fib(n: {input_ty}) -> Result<{output_ty}, crate::OutOfBoundsError<{input_ty}>> {{
         match n {{
             0 => Ok({result0}),
             1 => Ok({result1}),\n"
@@ -67,7 +67,7 @@ where
     Ok(())
 }
 
-fn get_result_ok_internal<I>(a: &I, b: &I, ty: &str) -> String
+fn get_result_ok_internal<I>(a: &I, b: &I, output_ty: &str) -> String
 where
     I: num::CheckedAdd
         + Display
@@ -75,8 +75,8 @@ where
         + Clone
         + std::cmp::PartialOrd,
 {
-    match ty {
+    match output_ty {
         "BigInt" => format!("{}u128.to_bigint().unwrap()", a.clone() + b.clone()),
-        _ => format!("{}_{ty}", a.clone() + b.clone()),
+        _ => format!("{}_{output_ty}", a.clone() + b.clone()),
     }
 }
