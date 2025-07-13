@@ -6,7 +6,7 @@ macro_rules! impl_fib {
         implement_fib_for_type::<$input_ty, $output_ty>(&mut $file, stringify!($input_ty), stringify!($output_ty), $limit)?;
     };
     ($file:ident, $input_ty:ty, $output_ty:ty) => {
-        impl_fib!($file, $input_ty, $output_ty, <$input_ty>::MAX);
+        impl_fib!($file, $input_ty, $output_ty, <$input_ty>::MAX.try_into().unwrap());
     };
     ( $file:ident, $($input_ty:ty),+ => $output_ty:ty) => {
         $(
@@ -42,7 +42,7 @@ fn main() -> std::io::Result<()> {
     impl_fib!(file, u8, u16, u32, u64, u128, usize => u128);
     impl_fib!(file, u8, u16, u32, u64, u128, usize => usize);
 
-    let big_int_limit = 255;
+    let big_int_limit = 256;
 
     #[cfg(feature = "bigint")]
     impl_fib!(file, u8, u16, u32, u64, u128, usize => BigInt, big_int_limit.try_into().unwrap());
@@ -58,7 +58,7 @@ fn implement_fib_for_type<I, O>(
     file: &mut File,
     input_ty: &str,
     output_ty: &str,
-    limit: I,
+    limit: u128,
 ) -> Result<(), std::io::Error>
 where
     I: TryFrom<u16>
@@ -90,14 +90,14 @@ where
     )?;
     let mut a = O::try_from(0).unwrap();
     let mut b = O::try_from(1).unwrap();
-    let mut i = I::try_from(2).unwrap();
-    while i < limit && a.checked_add(&b).is_some() {
+    let mut limiter = 2;
+    while limiter < limit && a.checked_add(&b).is_some() {
         let result = get_result_ok_internal(&a, &b, output_ty);
-        file.write_all(format!("\t\t\t{i} => Ok({result}),\n",).as_bytes())?;
+        file.write_all(format!("\t\t\t{limiter} => Ok({result}),\n",).as_bytes())?;
         let c = b.clone();
         b = a + b;
         a = c.clone();
-        i += I::try_from(1).unwrap();
+        limiter += 1;
     }
     file.write_all(
         b"\t\t\t_ => Err(crate::OutOfBoundsError::from(n)),

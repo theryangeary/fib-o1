@@ -94,7 +94,7 @@ fn test_fib_bigint() {
         BigInt::fib(99u128).unwrap(),
         218922995834555169026u128.to_bigint().unwrap()
     );
-    assert!(BigInt::fib(255u8).is_err());
+    assert!(BigInt::fib(255u8).is_ok());
 }
 
 #[cfg(feature = "bigint")]
@@ -123,6 +123,6 @@ fn test_fib_biguint() {
         218922995834555169026u128.to_biguint().unwrap()
     );
     assert!(
-        BigUint::fib(255u8).is_err()
+        BigUint::fib(255u8).is_ok()
     );
 }
