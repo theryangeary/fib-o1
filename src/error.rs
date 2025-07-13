@@ -1,18 +1,18 @@
 use std::fmt::Display;
 
 #[derive(Debug, Clone, Copy)]
-pub struct OutOfBoundsError {
-    n: u64
+pub struct OutOfBoundsError<T> {
+    n: T
 }
 
-impl Display for OutOfBoundsError {
+impl<T> Display for OutOfBoundsError<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "fib_o1 not compiled with support for fib({})", self.n)
+        write!(f, "fib_o1 not compiled with support for fib()")
     }
 }
 
-impl From<u64> for OutOfBoundsError {
-    fn from(n: u64) -> Self {
+impl<T> From<T> for OutOfBoundsError<T> {
+    fn from(n: T) -> Self {
         Self{n}
     }
 }
