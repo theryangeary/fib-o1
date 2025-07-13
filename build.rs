@@ -56,7 +56,7 @@ fn main() -> std::io::Result<()> {
     impl_fib!(file, u8, u16, u32, u64, u128, usize => u128);
     impl_fib!(file, u8, u16, u32, u64, u128, usize => usize);
 
-    let big_int_limit = 257;
+    let big_int_limit = u16::MAX / 16;
 
     #[cfg(feature = "bigint")]
     impl_fib!(file, u8, u16, u32, u64, u128, usize => BigInt, big_int_limit.try_into().unwrap());
