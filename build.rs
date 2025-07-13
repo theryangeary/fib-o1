@@ -1,5 +1,4 @@
 use num::bigint::{BigInt, BigUint};
-use paste::paste;
 use std::{fmt::Debug, fmt::Display, fs::File, io::Write, path::Path};
 
 pub const MAX_INPUT: u128 = 2u128.pow(12);
