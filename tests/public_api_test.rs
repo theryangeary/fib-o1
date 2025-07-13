@@ -1,12 +1,12 @@
 use fib_o1::Fib;
 #[cfg(feature = "bigint")]
-use num_bigint::{BigInt, ToBigInt};
+use num_bigint::{BigInt, ToBigInt, BigUint, ToBigUint};
 
 const FIB93_U64: u64 = 12200160415121876738;
 
 mod output_u64_tests {
     use super::*;
-    
+
     #[test]
     fn test_fib_u64_from_u16() {
         assert_eq!(u64::fib(2u16).unwrap(), 1);
@@ -72,26 +72,58 @@ mod output_u64_tests {
 #[cfg(feature = "bigint")]
 #[test]
 fn test_fib_bigint() {
-    assert_eq!(BigInt::fib(0).unwrap(), 0.to_bigint().unwrap());
-    assert_eq!(BigInt::fib(1).unwrap(), 1.to_bigint().unwrap());
-    assert_eq!(BigInt::fib(2).unwrap(), 1.to_bigint().unwrap());
-    assert_eq!(BigInt::fib(3).unwrap(), 2.to_bigint().unwrap());
-    assert_eq!(BigInt::fib(4).unwrap(), 3.to_bigint().unwrap());
-    assert_eq!(BigInt::fib(5).unwrap(), 5.to_bigint().unwrap());
-    assert_eq!(BigInt::fib(6).unwrap(), 8.to_bigint().unwrap());
-    assert_eq!(BigInt::fib(7).unwrap(), 13.to_bigint().unwrap());
-    assert_eq!(BigInt::fib(8).unwrap(), 21.to_bigint().unwrap());
-    assert_eq!(BigInt::fib(9).unwrap(), 34.to_bigint().unwrap());
-    assert_eq!(BigInt::fib(10).unwrap(), 55.to_bigint().unwrap());
-    assert_eq!(BigInt::fib(20).unwrap(), 6765.to_bigint().unwrap());
-    assert_eq!(BigInt::fib(30).unwrap(), 832040.to_bigint().unwrap());
-    assert_eq!(BigInt::fib(40).unwrap(), 102334155.to_bigint().unwrap());
+    assert_eq!(BigInt::fib(0u8).unwrap(), 0.to_bigint().unwrap());
+    assert_eq!(BigInt::fib(1u16).unwrap(), 1.to_bigint().unwrap());
+    assert_eq!(BigInt::fib(2u32).unwrap(), 1.to_bigint().unwrap());
+    assert_eq!(BigInt::fib(3u64).unwrap(), 2.to_bigint().unwrap());
+    assert_eq!(BigInt::fib(4u128).unwrap(), 3.to_bigint().unwrap());
+    assert_eq!(BigInt::fib(5usize).unwrap(), 5.to_bigint().unwrap());
+    assert_eq!(BigInt::fib(6usize).unwrap(), 8.to_bigint().unwrap());
+    assert_eq!(BigInt::fib(7usize).unwrap(), 13.to_bigint().unwrap());
+    assert_eq!(BigInt::fib(8u128).unwrap(), 21.to_bigint().unwrap());
+    assert_eq!(BigInt::fib(9u64).unwrap(), 34.to_bigint().unwrap());
+    assert_eq!(BigInt::fib(10u32).unwrap(), 55.to_bigint().unwrap());
+    assert_eq!(BigInt::fib(20u16).unwrap(), 6765.to_bigint().unwrap());
+    assert_eq!(BigInt::fib(30u8).unwrap(), 832040.to_bigint().unwrap());
+    assert_eq!(BigInt::fib(40u8).unwrap(), 102334155.to_bigint().unwrap());
     assert_eq!(
-        BigInt::fib(93).unwrap(),
+        BigInt::fib(93u64).unwrap(),
         12200160415121876738u128.to_bigint().unwrap()
     );
     assert_eq!(
-        BigInt::fib(99).unwrap(),
+        BigInt::fib(99u128).unwrap(),
         218922995834555169026u128.to_bigint().unwrap()
+    );
+    assert!(BigInt::fib(255u8).is_err());
+}
+
+#[cfg(feature = "bigint")]
+#[test]
+fn test_fib_biguint() {
+    assert_eq!(BigUint::fib(0u8).unwrap(), 0.to_biguint().unwrap());
+    assert_eq!(BigUint::fib(1u16).unwrap(), 1.to_biguint().unwrap());
+    assert_eq!(BigUint::fib(2u32).unwrap(), 1.to_biguint().unwrap());
+    assert_eq!(BigUint::fib(3u64).unwrap(), 2.to_biguint().unwrap());
+    assert_eq!(BigUint::fib(4u128).unwrap(), 3.to_biguint().unwrap());
+    assert_eq!(BigUint::fib(5usize).unwrap(), 5.to_biguint().unwrap());
+    assert_eq!(BigUint::fib(6usize).unwrap(), 8.to_biguint().unwrap());
+    assert_eq!(BigUint::fib(7usize).unwrap(), 13.to_biguint().unwrap());
+    assert_eq!(BigUint::fib(8u128).unwrap(), 21.to_biguint().unwrap());
+    assert_eq!(BigUint::fib(9u64).unwrap(), 34.to_biguint().unwrap());
+    assert_eq!(BigUint::fib(10u32).unwrap(), 55.to_biguint().unwrap());
+    assert_eq!(BigUint::fib(20u16).unwrap(), 6765.to_biguint().unwrap());
+    assert_eq!(BigUint::fib(30u8).unwrap(), 832040.to_biguint().unwrap());
+    assert_eq!(BigUint::fib(40u8).unwrap(), 102334155.to_biguint().unwrap());
+    assert_eq!(
+        BigUint::fib(93u64).unwrap(),
+        12200160415121876738u128.to_biguint().unwrap()
+    );
+    assert_eq!(
+        BigUint::fib(99u128).unwrap(),
+        218922995834555169026u128.to_biguint().unwrap()
+    );
+    #[allow(overflowing_literals)]
+    assert!(
+        BigUint::fib(255u8).is_err()
     );
 }
