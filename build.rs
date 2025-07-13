@@ -15,8 +15,13 @@ fn main() -> std::io::Result<()> {
     #[cfg(feature = "bigint")]
     file.write_all(b"use num_bigint::{BigInt,ToBigInt};\n")?;
 
-    implement_fib_for_type::<u64, u64>(&mut file, "u64", "u64", 100)?;
+    implement_fib_for_type::<u8, u64>(&mut file, "u8", "u64", 100)?;
+    implement_fib_for_type::<u16, u64>(&mut file, "u16", "u64", 100)?;
     implement_fib_for_type::<u32, u64>(&mut file, "u32", "u64", 100)?;
+    implement_fib_for_type::<u64, u64>(&mut file, "u64", "u64", 100)?;
+    implement_fib_for_type::<u128, u64>(&mut file, "u128", "u64", 100)?;
+    implement_fib_for_type::<usize, u64>(&mut file, "usize", "u64", 100)?;
+    
 
     #[cfg(feature = "bigint")]
     implement_fib_for_type::<u64, BigInt>(&mut file, "u64", "BigInt", 100)?;
