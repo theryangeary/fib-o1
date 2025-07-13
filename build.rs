@@ -56,12 +56,12 @@ fn main() -> std::io::Result<()> {
     impl_fib!(file, u8, u16, u32, u64, u128, usize => u128);
     impl_fib!(file, u8, u16, u32, u64, u128, usize => usize);
 
-    let big_int_limit = u16::MAX / 16;
-
     #[cfg(feature = "bigint")]
-    impl_fib!(file, u8, u16, u32, u64, u128, usize => BigInt, big_int_limit.try_into().unwrap());
-    #[cfg(feature = "bigint")]
-    impl_fib!(file, u8, u16, u32, u64, u128, usize => BigUint, big_int_limit.try_into().unwrap());
+    {
+        let big_int_limit = u16::MAX / 16;
+        impl_fib!(file, u8, u16, u32, u64, u128, usize => BigInt, big_int_limit.try_into().unwrap());
+        impl_fib!(file, u8, u16, u32, u64, u128, usize => BigUint, big_int_limit.try_into().unwrap());
+    }
 
     println!("cargo::rerun-if-changed=build.rs");
 
