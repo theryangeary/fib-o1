@@ -9,6 +9,7 @@ num-bigint = { version = "0.4.6", optional = true }
 
 [build-dependencies]
 num = {version = "0.4.3", features = ["num-bigint"]}
+paste = "1.0.15"
 
 [features]
 bigint = ["dep:num-bigint"]

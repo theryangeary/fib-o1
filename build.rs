@@ -1,4 +1,5 @@
 use num::bigint::{BigInt, BigUint};
+use paste::paste;
 use std::{fmt::Debug, fmt::Display, fs::File, io::Write, path::Path};
 
 macro_rules! impl_fib {
@@ -20,7 +21,20 @@ macro_rules! impl_fib {
     };
 }
 
-#[allow(overflowing_literals)]
+macro_rules! limit {
+    ($limiter:expr, $input_ty:expr, $limit:expr) => {
+        match $input_ty {
+            "u8" => $limiter <= u8::MAX as u128 && $limiter < $limit,
+            "u16" => $limiter <= u16::MAX as u128 && $limiter < $limit,
+            "u32" => $limiter <= u32::MAX as u128 && $limiter < $limit,
+            "u64" => $limiter <= u64::MAX as u128 && $limiter < $limit,
+            "u128" => $limiter <= u128::MAX as u128 && $limiter < $limit,
+            "usize" => $limiter <= usize::MAX as u128 && $limiter < $limit,
+            _ => panic!("Unsupported type: {}", $input_ty),
+        }
+    };
+}
+
 fn main() -> std::io::Result<()> {
     #[cfg(feature = "codegen-inplace")]
     let out_dir = "./src";
@@ -42,7 +56,7 @@ fn main() -> std::io::Result<()> {
     impl_fib!(file, u8, u16, u32, u64, u128, usize => u128);
     impl_fib!(file, u8, u16, u32, u64, u128, usize => usize);
 
-    let big_int_limit = 256;
+    let big_int_limit = 257;
 
     #[cfg(feature = "bigint")]
     impl_fib!(file, u8, u16, u32, u64, u128, usize => BigInt, big_int_limit.try_into().unwrap());
@@ -91,7 +105,7 @@ where
     let mut a = O::try_from(0).unwrap();
     let mut b = O::try_from(1).unwrap();
     let mut limiter = 2;
-    while limiter < limit && a.checked_add(&b).is_some() {
+    while limit!(limiter, input_ty, limit) && a.checked_add(&b).is_some() {
         let result = get_result_ok_internal(&a, &b, output_ty);
         file.write_all(format!("\t\t\t{limiter} => Ok({result}),\n",).as_bytes())?;
         let c = b.clone();
@@ -105,6 +119,7 @@ where
     }
 }\n\n",
     )?;
+
     Ok(())
 }
 
@@ -126,7 +141,10 @@ where
                     std::any::type_name::<I>()
                 ))
             {
-                format!("BigInt::parse_bytes(b\"{}\", 10).unwrap()", a.clone() + b.clone())
+                format!(
+                    "BigInt::parse_bytes(b\"{}\", 10).unwrap()",
+                    a.clone() + b.clone()
+                )
             } else {
                 format!("{}u128.to_bigint().unwrap()", a.clone() + b.clone())
             }
@@ -138,7 +156,10 @@ where
                     std::any::type_name::<I>()
                 ))
             {
-                format!("BigUint::parse_bytes(b\"{}\", 10).unwrap()", a.clone() + b.clone())
+                format!(
+                    "BigUint::parse_bytes(b\"{}\", 10).unwrap()",
+                    a.clone() + b.clone()
+                )
             } else {
                 format!("{}u128.to_biguint().unwrap()", a.clone() + b.clone())
             }
