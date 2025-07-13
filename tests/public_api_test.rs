@@ -122,7 +122,6 @@ fn test_fib_biguint() {
         BigUint::fib(99u128).unwrap(),
         218922995834555169026u128.to_biguint().unwrap()
     );
-    #[allow(overflowing_literals)]
     assert!(
         BigUint::fib(255u8).is_err()
     );

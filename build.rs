@@ -1,5 +1,5 @@
 use num::bigint::{BigInt, BigUint};
-use std::{fmt::Display, fmt::Debug, fs::File, io::Write, path::Path};
+use std::{fmt::Debug, fmt::Display, fs::File, io::Write, path::Path};
 
 macro_rules! impl_fib {
     ($file:ident, $input_ty:ty, $output_ty:ty, $limit:expr) => {
@@ -42,7 +42,7 @@ fn main() -> std::io::Result<()> {
     impl_fib!(file, u8, u16, u32, u64, u128, usize => u128);
     impl_fib!(file, u8, u16, u32, u64, u128, usize => usize);
 
-    let big_int_limit = 186;
+    let big_int_limit = 255;
 
     #[cfg(feature = "bigint")]
     impl_fib!(file, u8, u16, u32, u64, u128, usize => BigInt, big_int_limit.try_into().unwrap());
@@ -61,9 +61,20 @@ fn implement_fib_for_type<I, O>(
     limit: I,
 ) -> Result<(), std::io::Error>
 where
-    I: TryFrom<u16> + num::CheckedAdd + Display + std::ops::AddAssign<I> + Clone + std::cmp::PartialOrd,
+    I: TryFrom<u16>
+        + num::CheckedAdd
+        + Display
+        + std::ops::AddAssign<I>
+        + Clone
+        + std::cmp::PartialOrd,
     <I as TryFrom<u16>>::Error: Debug,
-    O: From<u8> + num::CheckedAdd + Display + std::ops::AddAssign<O> + Clone + std::cmp::PartialOrd,
+    O: TryFrom<u64>
+        + num::CheckedAdd
+        + Display
+        + std::ops::AddAssign<O>
+        + Clone
+        + std::cmp::PartialOrd,
+    <O as TryFrom<u64>>::Error: Debug,
 {
     let result0 = get_result_ok_internal(&0u64, &0u64, output_ty);
     let result1 = get_result_ok_internal(&0u64, &1u64, output_ty);
@@ -77,8 +88,8 @@ where
         )
         .as_bytes(),
     )?;
-    let mut a = O::from(0);
-    let mut b = O::from(1);
+    let mut a = O::try_from(0).unwrap();
+    let mut b = O::try_from(1).unwrap();
     let mut i = I::try_from(2).unwrap();
     while i < limit && a.checked_add(&b).is_some() {
         let result = get_result_ok_internal(&a, &b, output_ty);
@@ -99,11 +110,39 @@ where
 
 fn get_result_ok_internal<I>(a: &I, b: &I, output_ty: &str) -> String
 where
-    I: num::CheckedAdd + Display + std::ops::AddAssign<I> + Clone + std::cmp::PartialOrd,
+    I: num::CheckedAdd
+        + Display
+        + std::ops::AddAssign<I>
+        + Clone
+        + std::cmp::PartialOrd
+        + TryFrom<u64>,
+    <I as TryFrom<u64>>::Error: Debug,
 {
     match output_ty {
-        "BigInt" => format!("{}u128.to_bigint().unwrap()", a.clone() + b.clone()),
-        "BigUint" => format!("{}u128.to_biguint().unwrap()", a.clone() + b.clone()),
+        "BigInt" => {
+            if a.clone() + b.clone()
+                > I::try_from(u64::MAX).expect(&format!(
+                    "expected <I> big enough to house u64::MAX, found: {}",
+                    std::any::type_name::<I>()
+                ))
+            {
+                format!("BigInt::parse_bytes(b\"{}\", 10).unwrap()", a.clone() + b.clone())
+            } else {
+                format!("{}u128.to_bigint().unwrap()", a.clone() + b.clone())
+            }
+        }
+        "BigUint" => {
+            if a.clone() + b.clone()
+                > I::try_from(u64::MAX).expect(&format!(
+                    "expected <I> big enough to house u64::MAX, found: {}",
+                    std::any::type_name::<I>()
+                ))
+            {
+                format!("BigUint::parse_bytes(b\"{}\", 10).unwrap()", a.clone() + b.clone())
+            } else {
+                format!("{}u128.to_biguint().unwrap()", a.clone() + b.clone())
+            }
+        }
         _ => format!("{}_{output_ty}", a.clone() + b.clone()),
     }
 }
