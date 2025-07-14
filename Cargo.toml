@@ -1,6 +1,6 @@
 [package]
 name = "fib-o1"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "generate Fibonacci sequence numbers in O(1) time"
 authors = ["Ryan Geary <rtgnj42@gmail.com>"]
