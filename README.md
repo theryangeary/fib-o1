@@ -26,7 +26,11 @@ Comparison of alternative algorithms:
 2. Recursive with memoization takes O(n) time.
 3. Sequential generation (i.e. calculating all values in the sequence up to n) also takes O(n) time but improves upon recursive with memoization by using O(1) memory as well.
 4. Using matrix multiplication can yield an option that performs O(log n) time.
-5. And finally, there seems to be [a formula](https://r-knott.surrey.ac.uk/Fibonacci/fibFormula.html) which achieves O(1) time but thats not a stupid and funny as just generating all the values at compile time, so we'll choose to ignore that. Also, it relies on an irrational number constant and this may lead to rounding errors.
+5. And finally, there seems to be [a
+   formula](https://r-knott.surrey.ac.uk/Fibonacci/fibFormula.html) which
+   achieves O(1) time but thats not as stupid and funny as just generating all
+   the values at compile time, so we'll choose to ignore that. Also, it relies
+   on an irrational number constant and this may lead to rounding errors.
 
 # Tradeoffs
 
