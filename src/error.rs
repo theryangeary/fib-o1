@@ -2,6 +2,7 @@ use std::fmt::Display;
 
 #[derive(Debug, Clone, Copy)]
 pub struct OutOfBoundsError<T> {
+    #[allow(dead_code)]
     n: T
 }
 

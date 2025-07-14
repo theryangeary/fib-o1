@@ -113,6 +113,7 @@ where
         format!(
             "impl Fib<{input_ty}, {output_ty}> for {output_ty} {{
     fn fib(n: {input_ty}) -> Result<{output_ty}, crate::OutOfBoundsError<{input_ty}>> {{
+        #[allow(unreachable_patterns)]
         match n {{
             0 => Ok({result0}),
             1 => Ok({result1}),\n"
