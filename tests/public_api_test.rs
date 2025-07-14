@@ -131,7 +131,7 @@ fn test_fib_biguint() {
 
 #[cfg(feature = "bigint")]
 #[test]
-fn test_fib_accuracy() {
+fn test_fib_accuracy_bigint() {
     let mut a = BigInt::from(0);
     let mut b = BigInt::from(1);
     let mut i = 0u128;
@@ -143,4 +143,22 @@ fn test_fib_accuracy() {
         i += 1;
     }
     assert_eq!(i, fib_o1::MAX_INPUT + 1)
+}
+
+#[test]
+fn test_fib_accuracy() {
+    let mut a = 0;
+    let mut b = 1;
+    let mut i = 0u128;
+    while let Ok(actual) = u128::fib(i) {
+        assert_eq!(a, actual);
+        let c = match a.checked_add(b) {
+            Some(c) => c,
+            None => break,
+        };
+        a = b;
+        b = c;
+        i += 1;
+    }
+    assert_eq!(i, 185)
 }
