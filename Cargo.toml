@@ -12,6 +12,13 @@ num = {version = "0.4.3", features = ["num-bigint"]}
 paste = "1.0.15"
 
 [features]
+default = ["pow12", "bigint"]
 bigint = ["dep:num-bigint"]
 codegen-inplace = []
 all = ["bigint"]
+pow10 = []
+pow11 = []
+pow12 = []
+pow13 = []
+pow14 = []
+pow15 = []

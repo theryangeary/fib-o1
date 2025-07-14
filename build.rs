@@ -1,8 +1,6 @@
 use num::bigint::{BigInt, BigUint};
 use std::{fmt::Debug, fmt::Display, fs::File, io::Write, path::Path};
 
-pub const MAX_INPUT: u128 = 2u128.pow(12);
-
 macro_rules! impl_fib {
     ($file:ident, $input_ty:ty, $output_ty:ty, $limit:expr) => {
         implement_fib_for_type::<$input_ty, $output_ty>(&mut $file, stringify!($input_ty), stringify!($output_ty), $limit)?;
@@ -44,13 +42,29 @@ fn main() -> std::io::Result<()> {
     let out_path = Path::new(&out_dir).join("fib.rs");
     let mut file = File::create(out_path)?;
 
+    // define max(n) for fib(n)
+    let mut max_input_exp = 12;
+    let feats = vec![
+        ("CARGO_FEATURE_POW10", 10),
+        ("CARGO_FEATURE_POW11", 11),
+        ("CARGO_FEATURE_POW12", 12),
+        ("CARGO_FEATURE_POW13", 13),
+        ("CARGO_FEATURE_POW14", 14),
+    ];
+    for feat in feats {
+        if std::env::var_os(feat.0).is_some() {
+            max_input_exp = feat.1
+        }
+    }
+    let max_input = 2u128.pow(max_input_exp);
+
     #[cfg(feature = "codegen-inplace")]
     file.write_all(b"pub use crate::Fib;\n")?;
 
     #[cfg(feature = "bigint")]
     file.write_all(b"use num_bigint::{BigInt,BigUint,ToBigUint,ToBigInt};\n")?;
 
-    file.write_all(format!("pub const MAX_INPUT: u128 = {};", MAX_INPUT).as_bytes())?;
+    file.write_all(format!("pub const MAX_INPUT: u128 = {};", max_input).as_bytes())?;
 
     impl_fib!(file, u8, u16, u32, u64, u128, usize => u8);
     impl_fib!(file, u8, u16, u32, u64, u128, usize => u16);
@@ -61,7 +75,7 @@ fn main() -> std::io::Result<()> {
 
     #[cfg(feature = "bigint")]
     {
-        let big_int_limit = MAX_INPUT + 1;
+        let big_int_limit = max_input + 1;
         impl_fib!(file, u8, u16, u32, u64, u128, usize => BigInt, big_int_limit.try_into().unwrap());
         impl_fib!(file, u8, u16, u32, u64, u128, usize => BigUint, big_int_limit.try_into().unwrap());
     }
