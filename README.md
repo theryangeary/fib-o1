@@ -1,11 +1,11 @@
 # Constant Time Fibonacci Sequence Values
 
-`fib_o1` provides a `fn fib(n)` which produces a member of the Fibonacci
-sequence in constant (O(1)) time, up to a compile-time defined upper limit (or
-limits imposed by your chosen datatype).
+`fib_o1` is a rust crate which provides a `fn fib(n)` which produces a member of
+the Fibonacci sequence in constant (O(1)) time, up to a compile-time defined
+upper limit (or limits imposed by your chosen datatype).
 
-`fn fib(n)` works will all rust primitive unsigned integer types as well as with
-`num::BigInt` and `num::BigUint` from
+`fn fib(n)` works will all rust primitive unsigned integer types (i.e. u8 to
+u128, usize) as well as with `num::BigInt` and `num::BigUint` from
 [`num_bigint`](https://docs.rs/num-bigint/latest/num_bigint/).
 
 # Why?
@@ -18,7 +18,7 @@ practical applications.
 
 # Performance
 
-`fib_o1` will *always* give the requested result in constant O(1) time.
+`fib_o1` will always give the requested result in constant O(1) time.
 
 Comparison of alternative algorithms:
 
